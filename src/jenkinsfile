@@ -1,0 +1,90 @@
+pipeline {
+ agent any
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION = 'ap-south-1'  // replace with your AWS region
+        ECR_REPOSITORY_URI = '747418495548.dkr.ecr.ap-south-1.amazonaws.com/acharya_university'  // replace with your ECR repository URI
+		GITHUB_PAT = credentials('github_pat')
+		IMAGE_TAG = 'latest'
+    }
+
+	stages {
+
+       
+	   stage('Git Pull') {
+            steps {
+                // Pull the latest code from the repository
+                sh 'git pull'
+            }
+        }
+
+
+
+
+        stage('Authenticate AWS ECR') {
+            steps {
+                // Install AWS CLI if not available
+                sh '''
+                if ! command -v aws &> /dev/null
+                then
+                    apt-get update
+                    apt-get install -y awscli
+                fi
+                '''
+
+                // Configure AWS CLI
+                sh '''
+                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                aws configure set default.region $AWS_REGION
+                '''
+
+                // Login to Amazon ECR
+                sh '''
+                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                // Build Docker image using Docker Buildx
+                sh '''
+                docker buildx create --use --name multiosnexusrepo --driver docker-container --platform linux/arm64,linux/arm64 --buildkitd-flags "--allow-insecure-entitlement network.host"
+                docker buildx build --platform linux/arm64,linux/arm64 -t $ECR_REPOSITORY_URI:$IMAGE_TAG --push .
+                '''
+            }
+        }
+
+
+
+        stage('Tag and Push to GitHub') {
+            steps {
+                script {
+                    // Configure Git
+                    sh '''
+                    git config --global user.email "giri@acharya.ac.in"
+                    git config --global user.name "giri"
+                    '''
+
+                    // Create a new tag
+                    sh "git tag $IMAGE_TAG"
+
+                    // Push the tag to GitHub
+                    withCredentials([usernamePassword(credentialsId: 'github-pat', passwordVariable: 'GITHUB_TOKEN', usernameVariable: 'GITHUB_USER')]) {
+                        sh "git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/Acharya-University/au.git $IMAGE_TAG"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+				// Clean up Docker images
+				echo 'always sucess tags'
+			}
+        }
+    }

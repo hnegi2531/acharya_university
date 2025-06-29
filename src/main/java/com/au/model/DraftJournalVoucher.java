@@ -1,0 +1,110 @@
+package com.au.model;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Setter
+@Getter
+@Entity
+@Table(name = "draft_journal_voucher")
+public class DraftJournalVoucher {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer draft_journal_voucher_id;
+	
+	private Integer journal_voucher_number;			
+	private Integer school_id;
+	private String date;
+	private Integer bank_id;
+	private Integer fee_head_id;
+	private Double paying_now;
+	private String cheque_dd_no;
+	private String remarks;
+	
+	private String pay_to;
+	private String expensense_head;
+	private Integer financial_year_id;
+	private Double credit;
+	private Double  debit;
+	private Double credit_total;
+ 	private Double debit_total;
+ 	private Integer dept_id;
+ 	
+ 	private Integer vendor_active;
+ 	private Integer vendor_id;
+	private Integer salary_structure_head_id;
+	private Integer salary_status;
+	private Integer month;
+	private Integer year;
+	private Integer nature_id;
+	private Integer cancel_voucher; 
+	private String voucher_remarks;
+    private Integer cancelled_by;
+	private String cancelled_date;
+	
+	private Integer verified_status;
+	private Integer approved_status;
+	private String verified_date;
+	private String approved_date;
+	private Integer verifier_id;
+	private Integer approver_id;
+	private Integer payment_mode;
+	private String purchase_ref_number;
+	private String reference_number;
+	private Integer po_bill_id;
+	private Integer journal_voucher_id;
+	
+	private String attachment_name;
+ 	private String attachment_path;
+ 	
+ 	private String contract_number;
+ 	private Integer ledger_id;
+	private Integer voucher_head_id;   // voucher_head_new_id (voucher
+	
+	private String actual_date;
+	
+ 	@Column(updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	@CreationTimestamp
+	private Date created_date;
+
+	@Column(name = "modified_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	@UpdateTimestamp
+	private Date modified_date;
+
+	@Column(updatable = false)
+	private Integer created_by;
+	private Integer modified_by;
+	
+	private Boolean active;
+	
+	@Column(updatable = false)
+	private String created_username;
+	private String modified_username;
+	
+	private Integer inter_school_id;
+	private Integer more;
+	private String type;
+	private Integer env_bill_details_id;
+	
+	public DraftJournalVoucher() {
+		super();
+	}
+
+
+}

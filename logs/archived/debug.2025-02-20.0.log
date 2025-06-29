@@ -1,0 +1,6 @@
+2025-02-20 22:42:50 [http-nio-8080-exec-2] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt could not execute statement; nested exception is org.hibernate.exception.GenericJDBCException: could not execute statement
+2025-02-20 22:45:12 [http-nio-8080-exec-4] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt could not execute statement; nested exception is org.hibernate.exception.GenericJDBCException: could not execute statement
+2025-02-20 22:50:15 [http-nio-8080-exec-1] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt could not execute statement; nested exception is org.hibernate.exception.GenericJDBCException: could not execute statement

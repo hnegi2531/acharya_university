@@ -1,0 +1,14 @@
+2025-01-22 08:51:16 [http-nio-8080-exec-1] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt could not execute statement; SQL [n/a]; constraint [null]; nested exception is org.hibernate.exception.ConstraintViolationException: could not execute statement
+2025-01-22 09:01:24 [http-nio-8080-exec-4] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt could not execute statement; SQL [n/a]; constraint [null]; nested exception is org.hibernate.exception.ConstraintViolationException: could not execute statement
+2025-01-22 20:53:53 [http-nio-8080-exec-4] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null
+2025-01-22 21:01:01 [http-nio-8080-exec-5] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null
+2025-01-22 21:12:22 [http-nio-8080-exec-10] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null
+2025-01-22 21:17:47 [http-nio-8080-exec-2] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null
+2025-01-22 21:22:32 [http-nio-8080-exec-3] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null

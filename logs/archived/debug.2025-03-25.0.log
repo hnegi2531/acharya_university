@@ -1,0 +1,6 @@
+2025-03-25 23:11:59 [http-nio-8080-exec-5] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt The given id must not be null!; nested exception is java.lang.IllegalArgumentException: The given id must not be null!
+2025-03-25 23:13:07 [http-nio-8080-exec-6] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt The given id must not be null!; nested exception is java.lang.IllegalArgumentException: The given id must not be null!
+2025-03-25 23:31:20 [http-nio-8080-exec-1] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Academic Year is not present For Hostel Fee Receipt

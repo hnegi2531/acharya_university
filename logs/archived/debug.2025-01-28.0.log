@@ -1,0 +1,2 @@
+2025-01-28 05:49:07 [http-nio-8080-exec-4] ERROR com.au.service.FeeReceiptService -
+				Fee Receipt Cannot invoke "java.lang.Float.floatValue()" because "this.balanceAmount" is null
