@@ -35,10 +35,39 @@ public interface TimeTableEmployeeRepository extends JpaRepository<TimeTableEmpl
 	@Query(value = "select count(*) from time_table_employee tte left join time_table tt on tt.time_table_id=tte.time_table_id "
 			+ "where  tte.section_assignment_id=?1 and tte.time_slots_id=?2 and Date(tte.selected_date)=Date(?3) and tte.active=true",nativeQuery=true)
 	public Integer getCount1( Integer section_assignment_id, Integer time_slots_id, Date date);
+
+	@Query(value = "select count(*) from time_table_employee tte "
+			+ "left join time_table tt on tt.time_table_id=tte.time_table_id "
+			+ "inner join time_slots ts on ts.time_slots_id  = tte.time_slots_id "
+			+ "where tte.emp_id in ?1 and Date(tte.selected_date)=Date(?2) and tte.active=true "
+			+ "and (Time(ts.starting_time_for_fornted) < Time(?4) AND Time(?3) < Time(ts.ending_time_for_fornted))",nativeQuery=true)
+	public Integer getEmployeesCountForOverlappingTimeSlot(List<Integer> emp_id, Date date, String new_start_time, String new_end_time);
 	
+	// @Query(value = "select count(*) from time_table_employee tte left join time_table tt on tt.time_table_id=tte.time_table_id "
+	// 		+ "where tte.emp_id in ?1 and tte.time_slots_id=?2 and Date(tte.selected_date)=Date(?3) and tte.active=true",nativeQuery=true)
+	// public Integer getCount2(List<Integer> emp_id, Integer time_slots_id, Date date);
+
 	@Query(value = "select count(*) from time_table_employee tte left join time_table tt on tt.time_table_id=tte.time_table_id "
-			+ "where tte.emp_id in ?1 and tte.time_slots_id=?2 and Date(tte.selected_date)=Date(?3) and tte.active=true",nativeQuery=true)
-	public Integer getCount2(List<Integer> emp_id, Integer time_slots_id, Date date);
+	+ "inner join time_slots ts on ts.time_slots_id = tte.time_slots_id "
+	+ "where tte.section_assignment_id=?1 and Date(tte.selected_date)=Date(?2) "
+	+ "and (Time(ts.starting_time_for_fornted) < Time(?4) and Time(?3)< Time(ts.ending_time_for_fornted)) "
+	+ "and tte.active=true",nativeQuery=true)
+	public Integer getSectionCountForOverlappingTimeSlot( Integer section_assignment_id, Date date, String new_start_time, String new_end_time);
+
+	@Query(value = "select count(*) from time_table_employee tte left join time_table tt on tt.time_table_id=tte.time_table_id "
+		+ "inner join time_slots ts on ts.time_slots_id = tte.time_slots_id "
+		+ "where tt.room_id=?1 and Date(tte.selected_date)=Date(?2) "
+		+ "and (Time(ts.starting_time_for_fornted) < Time(?4) and Time(?3)< Time(ts.ending_time_for_fornted)) "
+		+ "and tte.active=true",nativeQuery=true)
+	public Integer getRoomCountForSameDateAndTime( Integer room_id, Date date, String new_start_time, String new_end_time );
+
+	@Query(value = "select count(*) from time_table_employee tte "
+			+ "left join time_table tt on tt.time_table_id=tte.time_table_id "
+			+ "inner join time_slots ts on ts.time_slots_id  = tte.time_slots_id "
+			+ "where tte.batch_assignment_id = ?1 and Date(tte.selected_date)=Date(?2) and tte.active=true "
+			+ "and (Time(ts.starting_time_for_fornted) < Time(?4) AND Time(?3) < Time(ts.ending_time_for_fornted))"
+	, nativeQuery = true)
+	public Integer getBatchCountForOverlappingTimeSlot( Integer batch_assignment_id, Date date, String starting_time, String ending_time);
 	
 	@Query(value = "select count(*) from time_table_employee tte left join time_table tt on tt.time_table_id=tte.time_table_id "
 			+ "where tte.section_assignment_id=?1 and tte.time_slots_id=?2 and Date(tte.selected_date)=Date(?3) and tte.active=true",nativeQuery=true)

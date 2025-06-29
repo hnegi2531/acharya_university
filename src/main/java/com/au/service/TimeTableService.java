@@ -375,6 +375,8 @@ public class TimeTableService {
 	Date date;
 
 	public List<TimeTable> saveMultipleTimeTableOnSec(@Valid TimeTableDto s) {
+		String start_time = null;
+		String end_time = null;
 
 		List<TimeTable> tt_list = new ArrayList<TimeTable>();
 
@@ -387,109 +389,130 @@ public class TimeTableService {
 
 		date = s.getFrom_date();
 		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " + s.getFrom_date());
+
 		System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB " + date);
 		for (int i = 0; i <= daysDiff; i++) {
 			System.out.println("++++++++++++++++++++++++++++++++ " + date);
 			// get DayName by date
 			Format f = new SimpleDateFormat("EEEE");
 			String dayName = f.format(date);
-			System.out.println("________________________________________________________________ " + dayName);
 			if (s.getWeek_day().equalsIgnoreCase(dayName)) {
 //					s.getEmp_id().stream().forEach(emp -> {
-
-				if (timeTableEmployeeRepository.getCount2(s.getEmp_id(), s.getTime_slots_id(), date) >= 1) {
-					throw new RuntimeException("Faculty already assigned for the given Date and Time !");
-				} else if (timeTableEmployeeRepository.getCount3(s.getEmp_id(), s.getSection_assignment_id(),
-						s.getTime_slots_id(), date) >= 1) {
-					throw new RuntimeException("Faculty already assigned for the given Date, Time and Section !");
-				}
-
-				List<TimeSlots> ts = timeSlotsRepository.getTimeSlotsAssignedForTheDay(s.getFrom_date(), s.getEmp_id());
-				Integer ts2 = timeSlotsRepository.getTimeSlotsAssignedForTheDay1(s.getFrom_date(), s.getEmp_id());
-				System.out.println("{{{{{{{{{{{{{{{{1111111111}}}}}}}}}}}}}}}} " + ts.size());
-
-				// TimeTable created_time_Table = new TimeTable();
-
-				if (!ts.isEmpty()) {
-
-					System.out.println("{{{{{{{{{{{{{{{{GGGGGGGGGGGGGGGGGG}}}}}}}}}}}}}}}} " + ts2);
-					System.out.println("{{{{{{{{{{{{{{{{@@@@@@@@@@@@@@W}}}}}}}}}}}}}}}} " + s.getTime_slots_id());
-					TimeSlots ts1 = timeSlotsRepository.getOne(s.getTime_slots_id());
-
-					SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
-
-					// Parsing the Time Period
-					try {
-						date1 = simpleDateFormat.parse(ts1.getStarting_time());
-						date2 = simpleDateFormat.parse(ts1.getEnding_time());
+				SimpleDateFormat twelweHourFormat = new SimpleDateFormat("hh:mm a");
+				SimpleDateFormat twentyFourHourFormat = new SimpleDateFormat("HH:mm");
+				TimeSlots ts1 = timeSlotsRepository.getOne(s.getTime_slots_id());
+				try {
+						start_time = twentyFourHourFormat.format(twelweHourFormat.parse(ts1.getStarting_time()));
+						end_time = twentyFourHourFormat.format(twelweHourFormat.parse(ts1.getEnding_time()));
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				
 
-					System.out.println("START ID:" + ts1.getTime_slots_id() + " Time = " + date1);
-					System.out.println("START ID:" + ts1.getTime_slots_id() + " Time = " + date1.getTime());
-					System.out.println("EENDDD ID:" + ts1.getTime_slots_id() + " Time = " + date2);
-					System.out.println("EENDDD  ID:" + ts1.getTime_slots_id() + " Time = " + date2.getTime());
-
-					System.out.println("{{{{{{{{{{{{{{{{1}}}}}}}}}}}}}}}} " + ts1.getStarting_time());
-					System.out.println("{{{{{{{{{{{{{{{{++++++++++++}}}}}}}}}}}}}}}} "
-							+ ts1.getStarting_time_for_fornted().getTime());
-					System.out.println("{{{{{{{{{{{{{{{{1}}}}}}}}}}}}}}}} " + s.getFrom_date());
-
-					// ts1.getStarting_time_for_fornted().getHours();
-					ts.stream().forEach(tss -> {
-
-						SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("h:mm a");
-
-						// Parsing the Time Period
-						try {
-							date3 = simpleDateFormat1.parse(tss.getStarting_time());
-							date4 = simpleDateFormat1.parse(tss.getEnding_time());
-						} catch (ParseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-						System.out.println("START ID:" + tss.getTime_slots_id() + " Time = " + date3);
-						System.out.println("START ID:" + tss.getTime_slots_id() + " Time = " + date3.getTime());
-						System.out.println("EENDDD ID:" + tss.getTime_slots_id() + " Time = " + date4);
-						System.out.println("EENDDD ID:" + tss.getTime_slots_id() + " Time = " + date4.getTime());
-
-//			If(frontedSendingEndTime <= AlreadyCreatedStartingTime)
-//			{
-//				//create
-//			}else if(frontedSendingStartingTime >= AlreadyCreatedEndingTime){
-//			  //create
-//			}else{
-//			   //error
-//			}
-//						TimeTable created_time_Table  = new TimeTable();
-						System.out.println("");
-						Integer count = 0;
-						if ((date2.getTime() <= date3.getTime())) {
-							System.out.println("doing nothing! just passing the control");
-							count = 0;
-						} else if ((date1.getTime() >= date4.getTime())) {
-							System.out.println("doing nothing! just passing the control");
-							count = 0;
-						} else {
-							throw new RuntimeException("Faculty ovelapping the already assigned time slot!");
-						}
-
-					});
-					s.setSelected_date(date);
-					System.out.println("--- : "+date);
-					System.out.println("+++ : "+s.getSelected_date());
-					created_time_Table = saveTimeTableData(s);
-					tt_list.add(created_time_Table);
-				} else {
-					s.setSelected_date(date);
-					System.out.println("--- : "+date);
-					System.out.println("+++ : "+s.getSelected_date());
-					created_time_Table = saveTimeTableData(s);
-					tt_list.add(created_time_Table);
+				if (timeTableEmployeeRepository.getEmployeesCountForOverlappingTimeSlot(s.getEmp_id(), date, start_time, end_time) >= 1) {
+					throw new RuntimeException("Faculty already assigned for the given Date and Time !");
+				} 
+				
+				else if (s.getSection_assignment_id() != null && timeTableEmployeeRepository.getSectionCountForOverlappingTimeSlot(s.getSection_assignment_id(), date, 
+				start_time, end_time) >= 1) {
+					throw new RuntimeException("Section is already assigned a course during this time slot !");
 				}
+
+				else if (timeTableEmployeeRepository.getRoomCountForSameDateAndTime(s.getRoom_id(),
+						 date, start_time, end_time) >= 1) {
+					throw new RuntimeException("Room is busy during this time slot !");
+				}
+
+				else if (s.getBatch_assignment_id() != null && timeTableEmployeeRepository.getBatchCountForOverlappingTimeSlot(s.getBatch_assignment_id(),
+						 date, start_time, end_time) >= 1) {
+					throw new RuntimeException("Batch is already assigned a course during this time slot !");
+				}
+				// List<TimeSlots> ts = timeSlotsRepository.getTimeSlotsAssignedForTheDay(date, s.getEmp_id());
+				// Integer ts2 = timeSlotsRepository.getTimeSlotsAssignedForTheDay1(date, s.getEmp_id());
+				// System.out.println("{{{{{{{{{{{{{{{{1111111111}}}}}}}}}}}}}}}} " + ts.size());
+
+				// TimeTable created_time_Table = new TimeTable();
+
+// 				if (!ts.isEmpty()) {
+
+// 					// System.out.println("{{{{{{{{{{{{{{{{GGGGGGGGGGGGGGGGGG}}}}}}}}}}}}}}}} " + ts2);
+// 					System.out.println("{{{{{{{{{{{{{{{{@@@@@@@@@@@@@@W}}}}}}}}}}}}}}}} " + s.getTime_slots_id());
+
+// 					SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
+
+// 					// Parsing the Time Period
+// 					try {
+// 						date1 = simpleDateFormat.parse(ts1.getStarting_time());
+// 						date2 = simpleDateFormat.parse(ts1.getEnding_time());
+// 					} catch (ParseException e) {
+// 						// TODO Auto-generated catch block
+// 						e.printStackTrace();
+// 					}
+
+// 					System.out.println("START ID:" + ts1.getTime_slots_id() + " Time = " + date1);
+// 					System.out.println("START ID:" + ts1.getTime_slots_id() + " Time = " + date1.getTime());
+// 					System.out.println("EENDDD ID:" + ts1.getTime_slots_id() + " Time = " + date2);
+// 					System.out.println("EENDDD  ID:" + ts1.getTime_slots_id() + " Time = " + date2.getTime());
+
+// 					System.out.println("{{{{{{{{{{{{{{{{1}}}}}}}}}}}}}}}} " + ts1.getStarting_time());
+// 					System.out.println("{{{{{{{{{{{{{{{{++++++++++++}}}}}}}}}}}}}}}} "
+// 							+ ts1.getStarting_time_for_fornted().getTime());
+// 					System.out.println("{{{{{{{{{{{{{{{{1}}}}}}}}}}}}}}}} " + s.getFrom_date());
+
+// 					// ts1.getStarting_time_for_fornted().getHours();
+// 					ts.stream().forEach(tss -> {
+
+// 						SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("h:mm a");
+
+// 						// Parsing the Time Period
+// 						try {
+// 							date3 = simpleDateFormat1.parse(tss.getStarting_time());
+// 							date4 = simpleDateFormat1.parse(tss.getEnding_time());
+// 						} catch (ParseException e) {
+// 							// TODO Auto-generated catch block
+// 							e.printStackTrace();
+// 						}
+
+// 						System.out.println("START ID:" + tss.getTime_slots_id() + " Time = " + date3);
+// 						System.out.println("START ID:" + tss.getTime_slots_id() + " Time = " + date3.getTime());
+// 						System.out.println("EENDDD ID:" + tss.getTime_slots_id() + " Time = " + date4);
+// 						System.out.println("EENDDD ID:" + tss.getTime_slots_id() + " Time = " + date4.getTime());
+
+// //			If(frontedSendingEndTime <= AlreadyCreatedStartingTime)
+// //			{
+// //				//create
+// //			}else if(frontedSendingStartingTime >= AlreadyCreatedEndingTime){
+// //			  //create
+// //			}else{
+// //			   //error
+// //			}
+// //						TimeTable created_time_Table  = new TimeTable();
+// 						System.out.println("");
+// 						Integer count = 0;
+// 						if ((date2.getTime() <= date3.getTime())) {
+// 							System.out.println("doing nothing! just passing the control");
+// 							count = 0;
+// 						} else if ((date1.getTime() >= date4.getTime())) {
+// 							System.out.println("doing nothing! just passing the control");
+// 							count = 0;
+// 						} else {
+// 							throw new RuntimeException("Faculty ovelapping the already assigned time slot!");
+// 						}
+
+// 					});
+// 					s.setSelected_date(date);
+// 					System.out.println("--- : "+date);
+// 					System.out.println("+++ : "+s.getSelected_date());
+// 					created_time_Table = saveTimeTableData(s);
+// 					tt_list.add(created_time_Table);
+// 				} else {
+					s.setSelected_date(date);
+					System.out.println("--- : "+date);
+					System.out.println("+++ : "+s.getSelected_date());
+					created_time_Table = saveTimeTableData(s);
+					tt_list.add(created_time_Table);
+				// }
 
 				// created_time_Table=null;
 				timeTableRepository.saveAll(tt_list);
