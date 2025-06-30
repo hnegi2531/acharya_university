@@ -271,6 +271,16 @@ public class TimeTableController {
 		} else {
 			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
 		}
+	}
+	
+	@GetMapping("/fetchAllCourseDetailsForBatchTimeTable/{emp_ids}/{batch_assignment_id}")
+	public ResponseEntity<Object> getAllCourseDetailsForBatchTimeTable(@PathVariable List<Integer> emp_ids,@PathVariable Integer batch_assignment_id) {
+		if (RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String, Object>> courseAmountDetailsByIds = courseAssignmentService.fetchAllCourseDetailsForBatchTimeTable(emp_ids,batch_assignment_id);
+			return ResponseHandler.generateResponse(true, HttpStatus.OK,courseAmountDetailsByIds);
+		} else {
+			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
+		}
 	} 
 	
 	@GetMapping("/TimeIntervalTypesInSectionDropdownOfTimetable")
@@ -662,6 +672,18 @@ public class TimeTableController {
 	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer school_id,@PathVariable Integer program_specialization_id) {
 		if(RateLimitController.bucket.tryConsume(1)) {
 			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(school_id, program_specialization_id);
+			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
+			return list_time_table_response;
+		}else {
+			ResponseEntity<Object> rs=ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS, ResponseHandler.message1);
+			return rs;
+		}
+	}
+
+	@GetMapping("/getEmployeesForBatchTimeTable/{batch_assignment_id}")
+	public ResponseEntity<Object> getEmployeesForBatchTimeTable(@PathVariable Integer batch_assignment_id) {
+		if(RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForBatchTimeTable(batch_assignment_id);
 			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
 			return list_time_table_response;
 		}else {

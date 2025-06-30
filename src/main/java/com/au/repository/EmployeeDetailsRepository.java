@@ -1095,6 +1095,24 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 			+ "where edh.school_id =?1 and ps.program_specialization_id =?2 and edh.active=true group by edh.emp_id", nativeQuery = true)
 	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer school_id, Integer program_specialization_id);
 
+	@Query(value = "SELECT " +
+    "    ed.emp_id AS emp_id, " +
+    "    CONCAT( " +
+    "        IFNULL(ed.employee_name, ''), '-', " +
+    "        IFNULL(ed.empcode, ''), '-', " +
+    "        (SELECT d.dept_name_short " +
+    "         FROM department d " +
+    "         WHERE ed.dept_id = d.dept_id AND d.active = TRUE) " +
+    "    ) AS employeeName " +
+    "FROM batch_program_assignment bpa " +
+    "INNER JOIN course_assignment ca ON bpa.program_specialization_id = ca.program_specialization_id " +
+    "INNER JOIN subject_assignment sa ON sa.course_assignment_id = ca.course_assignment_id " +
+    "INNER JOIN user_details ud ON ud.id = sa.user_id " +
+    "INNER JOIN employee_details ed ON ed.email = ud.email " +
+    "WHERE bpa.batch_assignment_id = ?1 " +
+    "GROUP BY ed.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> getEmployeesForBatchTimeTable(Integer batch_assignment_id);
+
 	@Query(value = "select emp_id from EmployeeDetails ed where ed.email=?1 and ed.active=true")
 	public Integer getEmpId1(String email);
 

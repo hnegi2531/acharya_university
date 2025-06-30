@@ -1295,6 +1295,10 @@ public class TimeTableService {
 		return employeeDetailsRepository.getEmployeesForSectionTimeTable(school_id, program_specialization_id);
 	}
 
+	public List<Map<String, Object>> getEmployeesForBatchTimeTable(Integer batch_assignment_id) {
+		return employeeDetailsRepository.getEmployeesForBatchTimeTable(batch_assignment_id);
+	}
+
 	public void updateRoomForSwapping(Integer timeTableId, Integer roomId) {
 		timeTableRepository.updateRoomForSwapping(timeTableId, roomId);
 
