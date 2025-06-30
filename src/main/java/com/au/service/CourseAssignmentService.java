@@ -243,6 +243,10 @@ public class CourseAssignmentService {
 		return courseAssignmentRepository.fetchAllCourseDetailsForTimeTable(emp_ids);
 	}
 	
+	public List<Map<String, Object>> fetchAllCourseDetailsForSectionTimeTable(List<Integer> emp_ids,Integer program_specialization_id) {
+		return courseAssignmentRepository.fetchAllCourseDetailsForSectionTimeTable(emp_ids,program_specialization_id);
+	}
+
 	public List<Map<String, Object>> fetchCourseDetail(Integer year_sem, Integer student_id) {
 		List<Map<String, Object>> final_response=new ArrayList<>();
 		Integer prog_spec_id = stu_repo.getProgramSpecializationId(student_id);
