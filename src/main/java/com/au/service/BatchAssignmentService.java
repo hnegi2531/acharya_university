@@ -95,10 +95,10 @@ public class BatchAssignmentService {
 			String[] idsArray = studentIds.split(",");
 			for(String id : idsArray) {
 				Integer studentId = Integer.parseInt(id);
-				if(s.getCurrent_sem() != null &&s_repo.getCountOfBatchAssignmentOnSem(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_sem(),s.getAc_year_id(),s.getBatch_id(), studentId) >= 1) {
+				if(s.getCurrent_sem() != null &&s_repo.getCountOfBatchAssignmentOnSem(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_sem(),s.getAc_year_id(), studentId) >= 1) {
 					throw new RuntimeException("Batch assignment contains duplicate student id !");
 				}
-				if(s.getCurrent_year() != null && s_repo.getCountOfBatchAssignmentOnYear(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_year(),s.getAc_year_id(),s.getBatch_id(), studentId) >= 1) {
+				if(s.getCurrent_year() != null && s_repo.getCountOfBatchAssignmentOnYear(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_year(),s.getAc_year_id(), studentId) >= 1) {
 					throw new RuntimeException("Batch assignment contains duplicate student id !");
 				}
 			}
