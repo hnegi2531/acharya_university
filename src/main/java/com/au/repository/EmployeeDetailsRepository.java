@@ -1092,8 +1092,8 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 			+ "inner join subject_assignment sa on sa.user_id = ud.id "
 			+ "inner join course_assignment ca on ca.course_assignment_id = sa.course_assignment_id "
 			+ "inner join program_specialization ps on ps.program_specialization_id=ca.program_specialization_id "
-			+ "where edh.school_id =?1 and ps.program_specialization_id =?2 and edh.active=true group by edh.emp_id", nativeQuery = true)
-	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer school_id, Integer program_specialization_id);
+			+ "where ps.program_specialization_id =?2 and edh.active=true group by edh.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id);
 
 	@Query(value = "SELECT " +
     "    ed.emp_id AS emp_id, " +

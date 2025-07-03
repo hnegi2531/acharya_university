@@ -668,10 +668,10 @@ public class TimeTableController {
 		}
 	}
 	
-	@GetMapping("/getEmployeesForSectionTimeTable/{school_id}/{program_specialization_id}")
-	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer school_id,@PathVariable Integer program_specialization_id) {
+	@GetMapping("/getEmployeesForSectionTimeTable/{program_specialization_id}")
+	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer program_specialization_id) {
 		if(RateLimitController.bucket.tryConsume(1)) {
-			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(school_id, program_specialization_id);
+			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(program_specialization_id);
 			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
 			return list_time_table_response;
 		}else {
