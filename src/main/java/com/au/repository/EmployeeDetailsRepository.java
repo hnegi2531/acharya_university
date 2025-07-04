@@ -1088,12 +1088,12 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 @Query(value = "select CONCAT(IFNULL(edh.employee_name,''),'-',IFNULL(edh.empcode,''),'-',(select d.dept_name_short from department d where edh.dept_id=d.dept_id and d.active=true)) as employeeName, "
 			+ "edh.emp_id as emp_id, ud.id as id "
 			+ "from user_details ud "
-			+ "inner join employee_details edh on ud.email=edh.email "
-			+ "inner join subject_assignment sa on sa.user_id = ud.id "
-			+ "inner join course_assignment ca on ca.course_assignment_id = sa.course_assignment_id "
-			+ "inner join program_specialization ps on ps.program_specialization_id=ca.program_specialization_id "
-			+ "where ps.program_specialization_id =?1 and edh.active=true group by edh.emp_id", nativeQuery = true)
-	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id);
+			+ "inner join employee_details edh on ud.email=edh.email and edh.active=true "
+			+ "inner join subject_assignment sa on sa.user_id = ud.id and sa.active =true "
+			+ "inner join course_assignment ca on ca.course_assignment_id = sa.course_assignment_id and ca.active =true and ca.year_sem =?2 "
+			+ "inner join program_specialization ps on ps.program_specialization_id=ca.program_specialization_id and ps.program_specialization_id =?1 "
+			+ "group by edh.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id,Integer year_sem);
 
 	@Query(value = "SELECT " +
     "    ed.emp_id AS emp_id, " +

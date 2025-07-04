@@ -263,10 +263,10 @@ public class TimeTableController {
 		}
 	} 
 
-	@GetMapping("/fetchAllCourseDetailsForSectionTimeTable/{empIds}/{programSpecializationId}")
-	public ResponseEntity<Object> getAllCourseDetailsForSectionTimeTable(@PathVariable List<Integer> empIds,@PathVariable Integer programSpecializationId) {
+	@GetMapping("/fetchAllCourseDetailsForSectionTimeTable/{empIds}/{programSpecializationId}/{yearSem}")
+	public ResponseEntity<Object> getAllCourseDetailsForSectionTimeTable(@PathVariable List<Integer> empIds,@PathVariable Integer programSpecializationId,@PathVariable Integer yearSem) {
 		if (RateLimitController.bucket.tryConsume(1)) {
-			List<Map<String, Object>> courseAmountDetailsByIds = courseAssignmentService.fetchAllCourseDetailsForSectionTimeTable(empIds,programSpecializationId);
+			List<Map<String, Object>> courseAmountDetailsByIds = courseAssignmentService.fetchAllCourseDetailsForSectionTimeTable(empIds,programSpecializationId,yearSem);
 			return ResponseHandler.generateResponse(true, HttpStatus.OK,courseAmountDetailsByIds);
 		} else {
 			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
@@ -668,10 +668,10 @@ public class TimeTableController {
 		}
 	}
 	
-	@GetMapping("/getEmployeesForSectionTimeTable/{program_specialization_id}")
-	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer program_specialization_id) {
+	@GetMapping("/getEmployeesForSectionTimeTable/{program_specialization_id}/{year_sem}")
+	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer program_specialization_id,@PathVariable Integer year_sem) {
 		if(RateLimitController.bucket.tryConsume(1)) {
-			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(program_specialization_id);
+			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(program_specialization_id,year_sem);
 			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
 			return list_time_table_response;
 		}else {
