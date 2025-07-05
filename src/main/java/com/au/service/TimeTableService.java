@@ -1291,8 +1291,8 @@ public class TimeTableService {
 		return employeeDetailsRepository.getAllEmployeesForTimeTable(date1, date2, time_slots_id);
 	}
 
-	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id) {
-		return employeeDetailsRepository.getEmployeesForSectionTimeTable(program_specialization_id);
+	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id,Integer year_sem) {
+		return employeeDetailsRepository.getEmployeesForSectionTimeTable(program_specialization_id,year_sem);
 	}
 
 	public List<Map<String, Object>> getEmployeesForBatchTimeTable(Integer batch_assignment_id) {
