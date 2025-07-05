@@ -1085,6 +1085,34 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 			+ "and tte.time_slots_id=?3) and edh.active=true", nativeQuery = true)
 	public List<Map<String, Object>> getAllEmployeesForTimeTable(Date date1, Date date2, Integer time_slots_id);
 
+@Query(value = "select CONCAT(IFNULL(edh.employee_name,''),'-',IFNULL(edh.empcode,''),'-',(select d.dept_name_short from department d where edh.dept_id=d.dept_id and d.active=true)) as employeeName, "
+			+ "edh.emp_id as emp_id, ud.id as id "
+			+ "from user_details ud "
+			+ "inner join employee_details edh on ud.email=edh.email and edh.active=true "
+			+ "inner join subject_assignment sa on sa.user_id = ud.id and sa.active =true "
+			+ "inner join course_assignment ca on ca.course_assignment_id = sa.course_assignment_id and ca.active =true and ca.year_sem =?2 "
+			+ "inner join program_specialization ps on ps.program_specialization_id=ca.program_specialization_id and ps.program_specialization_id =?1 "
+			+ "group by edh.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> getEmployeesForSectionTimeTable(Integer program_specialization_id,Integer year_sem);
+
+	@Query(value = "SELECT " +
+    "    ed.emp_id AS emp_id, " +
+    "    CONCAT( " +
+    "        IFNULL(ed.employee_name, ''), '-', " +
+    "        IFNULL(ed.empcode, ''), '-', " +
+    "        (SELECT d.dept_name_short " +
+    "         FROM department d " +
+    "         WHERE ed.dept_id = d.dept_id AND d.active = TRUE) " +
+    "    ) AS employeeName " +
+    "FROM batch_program_assignment bpa " +
+    "INNER JOIN course_assignment ca ON bpa.program_specialization_id = ca.program_specialization_id " +
+    "INNER JOIN subject_assignment sa ON sa.course_assignment_id = ca.course_assignment_id " +
+    "INNER JOIN user_details ud ON ud.id = sa.user_id " +
+    "INNER JOIN employee_details ed ON ed.email = ud.email " +
+    "WHERE bpa.batch_assignment_id = ?1 " +
+    "GROUP BY ed.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> getEmployeesForBatchTimeTable(Integer batch_assignment_id);
+
 	@Query(value = "select emp_id from EmployeeDetails ed where ed.email=?1 and ed.active=true")
 	public Integer getEmpId1(String email);
 

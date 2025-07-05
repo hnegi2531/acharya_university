@@ -31,15 +31,11 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 	@Query(value ="Select ba.batch_assignment_id as id,ba.batch_id as batch_id,ba.school_id as school_id,ba.interval_type_id as interval_type_id,"
 			+ "ba.program_id as program_id,ba.ac_year_id as ac_year_id,ba.current_year as current_year,ba.guest_uesr_ids as guest_uesr_ids,"
 			+ "(select (LENGTH(ba.student_ids) - LENGTH(REPLACE(ba.student_ids,\",\",\"\")) + 1)) as count_of_students,"
-			+ "ba.current_sem as current_sem,ba.student_ids as student_ids,ba.batch_type as batch_type,ba.remarks as remarks,"
+			+ "ba.current_sem as current_sem,ba.student_ids as student_ids,ba.batch_type as batch_type,ba.remarks as remarks, concat(ifnull(b.batch_name,''),'-',ifnull(ba.remarks,'')) as batch_name,"
 			+ "ba.batch_master_id as batch_master_id,ba.created_date as created_date,ba.modified_date as modified_date,"
 			+ "ba.created_by as created_by,ba.modified_by as modified_by,ba.created_username as created_username,tit.interval_type_short as interval_type_short,"
 			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name,"
-			+ "sch.school_name_short as school_name_short,(Select Group_concat(program_specialization.program_specialization_short_name) From program_specialization  where "
-			+ "program_specialization.program_specialization_id in (select batch_program_assignment.program_specialization_id From batch_program_assignment where "
-			+ "batch_program_assignment.ac_year_id=ba.ac_year_id and batch_program_assignment.batch_id=ba.batch_id and "
-			+ "batch_program_assignment.school_id =ba.school_id and "
-			+ "(batch_program_assignment.current_year=ba.current_year or batch_program_assignment.current_sem=ba.current_sem))) as program_specialization_short_name,"
+			+ "sch.school_name_short as school_name_short, GROUP_CONCAT(ps.program_specialization_short_name) as program_specialization_short_name,"
 			+ "ay.ac_year as ac_year,bs.program_specialization_id As program_specialization_id "
 			+ "From batch_assignment ba "
 			+ "left join batch_program_assignment bs on bs.batch_assignment_id=ba.batch_assignment_id "
@@ -62,15 +58,11 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 	@Query(value ="Select ba.batch_assignment_id as id,ba.batch_id as batch_id,ba.school_id as school_id,ba.interval_type_id as interval_type_id,"
 			+ "ba.program_id as program_id,ba.ac_year_id as ac_year_id,ba.current_year as current_year,ba.guest_uesr_ids as guest_uesr_ids,"
 			+ "(select (LENGTH(ba.student_ids) - LENGTH(REPLACE(ba.student_ids,\",\",\"\")) + 1)) as count_of_students,"
-			+ "ba.current_sem as current_sem,ba.student_ids as student_ids,ba.batch_type as batch_type,ba.remarks as remarks,"
+			+ "ba.current_sem as current_sem,ba.student_ids as student_ids,ba.batch_type as batch_type,ba.remarks as remarks, concat(ifnull(b.batch_name,''),'-',ifnull(ba.remarks,'')) as batch_name,"
 			+ "ba.batch_master_id as batch_master_id,ba.created_date as created_date,ba.modified_date as modified_date,"
 			+ "ba.created_by as created_by,ba.modified_by as modified_by,ba.created_username as created_username,tit.interval_type_short as interval_type_short,"
 			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name,"
-			+ "sch.school_name_short as school_name_short,(Select Group_concat(program_specialization.program_specialization_short_name) From program_specialization  where "
-			+ "program_specialization.program_specialization_id in (select batch_program_assignment.program_specialization_id From batch_program_assignment where "
-			+ "batch_program_assignment.ac_year_id=ba.ac_year_id and batch_program_assignment.batch_id=ba.batch_id and "
-			+ "batch_program_assignment.school_id =ba.school_id and "
-			+ "(batch_program_assignment.current_year=ba.current_year or batch_program_assignment.current_sem=ba.current_sem))) as program_specialization_short_name,"
+			+ "sch.school_name_short as school_name_short, GROUP_CONCAT(ps.program_specialization_short_name) as program_specialization_short_name,"
 			+ "ay.ac_year as ac_year,bs.program_specialization_id As program_specialization_id "
 			+ "From batch_assignment ba "
 			+ "left join batch_program_assignment bs on bs.batch_assignment_id=ba.batch_assignment_id "
@@ -87,11 +79,11 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 			+ "(:program_specialization_id is null or bs.program_specialization_id = :program_specialization_id) group by ba.batch_assignment_id ",nativeQuery=true)
 	public List<Map<String, Object>> findAll3(Pageable pageable, Integer ac_year_id, Integer school_id, Integer program_specialization_id, Integer batch_id,Integer current_year_sem);
 	
-	@Query(value = "SELECT count(*) FROM BatchAssignment ba Inner join BatchProgramAssignment bpa on bpa.batch_assignment_id=ba.batch_assignment_id where ba.school_id=?1 and bpa.program_specialization_id IN ?2 and ba.current_year =?3 and ba.ac_year_id=?4 and ba.batch_id=?5 and ba.active=true")
-	public Integer getCountOfBatchAssignmentOnYear(Integer school_id,List<Integer> program_id,Integer current_year,Integer ac_year_id,Integer batch_id);
+	@Query(value = "SELECT count(*) FROM BatchAssignment ba Inner join BatchProgramAssignment bpa on bpa.batch_assignment_id=ba.batch_assignment_id where ba.school_id=?1 and bpa.program_specialization_id IN ?2 and ba.current_year =?3 and ba.ac_year_id=?4 and FIND_IN_SET(?5,ba.student_ids) > 0 and ba.active=true")
+	public Integer getCountOfBatchAssignmentOnYear(Integer school_id,List<Integer> program_id,Integer current_year,Integer ac_year_id, Integer student_id);
 	
-	@Query(value = "SELECT count(*) FROM BatchAssignment ba Inner join BatchProgramAssignment bpa on bpa.batch_assignment_id=ba.batch_assignment_id where ba.school_id=?1 and bpa.program_specialization_id IN ?2 and ba.current_sem =?3 and ba.ac_year_id=?4 and ba.batch_id=?5 and ba.active=true")
-	public Integer getCountOfBatchAssignmentOnSem(Integer school_id,List<Integer> program_id,Integer current_sem,Integer ac_year_id,Integer batch_id);
+	@Query(value = "SELECT count(*) FROM BatchAssignment ba Inner join BatchProgramAssignment bpa on bpa.batch_assignment_id=ba.batch_assignment_id where ba.school_id=?1 and bpa.program_specialization_id IN ?2 and ba.current_sem =?3 and ba.ac_year_id=?4 and FIND_IN_SET(?5,ba.student_ids) > 0 and ba.active=true")
+	public Integer getCountOfBatchAssignmentOnSem(Integer school_id,List<Integer> program_id,Integer current_sem,Integer ac_year_id, Integer student_id);
 	
 	@Query(value = "SELECT ba FROM BatchAssignment ba Inner join BatchProgramAssignment bpa on bpa.batch_assignment_id=ba.batch_assignment_id where ba.school_id=?1 and bpa.program_id in ?2 and ba.current_sem =?3 and ba.ac_year_id=?4 and ba.batch_id=?5 and ba.active=true")
 	public List<BatchAssignment> fetchStudentDetailForBatchAssignmentOnSem(Integer school_id,List<Integer> program_id,Integer current_sem,Integer ac_year_id,Integer batch_id);
@@ -143,6 +135,10 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 	
 	@Query(value = "SELECT distinct ba.program_specialization_id FROM batch_assignment ba where ba.batch_assignment_id=?1 and ba.active=true",nativeQuery=true)
 	public List<Integer> checkRemarksValidation(Integer batch_assignment_id);
+
+	@Query(value = "SELECT count(*) FROM batch_assignment ba WHERE  ba.batch_id  = ?1 AND IfNull(TRIM(ba.remarks),'') = ?2 AND ba.active=true",nativeQuery=true)
+	public Integer checkRemarksValidationWithBatchId(Integer batchId, String remarks);
+	
 	
 	@Query(value = "select ba from BatchAssignment ba where ba.batch_assignment_id=?1 and ba.active=true")
 	public BatchAssignment activeBatchAssignmentDetail(Integer batch_assignment_id);
@@ -204,13 +200,9 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 			+ "(select (LENGTH(ba.student_ids) - LENGTH(REPLACE(ba.student_ids,\",\",\"\")) + 1)) as count_of_students,"
 			+ "ba.batch_master_id as batch_master_id,ba.created_date as created_date,ba.modified_date as modified_date,"
 			+ "ba.created_by as created_by,ba.modified_by as modified_by,ba.created_username as created_username,tit.interval_type_short as interval_type_short,"
-			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name,"
+			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name, concat(ifnull(b.batch_name,''),'-',ifnull(ba.remarks,'')) as batch_name,"
 			+ "de.dept_id As dept_id,de.dept_name_short As dept_name_short,de.dept_name As dept_name,"
-			+ "sch.school_name_short as school_name_short,(Select Group_concat(program_specialization.program_specialization_short_name) From program_specialization  where "
-			+ "program_specialization.program_specialization_id in (select batch_program_assignment.program_specialization_id From batch_program_assignment where "
-			+ "batch_program_assignment.ac_year_id=ba.ac_year_id and batch_program_assignment.batch_id=ba.batch_id and "
-			+ "batch_program_assignment.school_id =ba.school_id and "
-			+ "(batch_program_assignment.current_year=ba.current_year or batch_program_assignment.current_sem=ba.current_sem))) as program_specialization_short_name,"
+			+ "sch.school_name_short as school_name_short,GROUP_CONCAT(ps.program_specialization_short_name) as program_specialization_short_name,"
 			+ "ay.ac_year as ac_year "
 			+ "From batch_assignment ba "
 			+ "left join batch_program_assignment bs on bs.batch_assignment_id=ba.batch_assignment_id "
@@ -235,13 +227,9 @@ public interface BatchAssignmentRepository extends JpaRepository<BatchAssignment
 			+ "(select (LENGTH(ba.student_ids) - LENGTH(REPLACE(ba.student_ids,\",\",\"\")) + 1)) as count_of_students,"
 			+ "ba.batch_master_id as batch_master_id,ba.created_date as created_date,ba.modified_date as modified_date,"
 			+ "ba.created_by as created_by,ba.modified_by as modified_by,ba.created_username as created_username,tit.interval_type_short as interval_type_short,"
-			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name,"
+			+ "ba.modified_username as modified_username,ba.active as active,b.batch_short_name as batch_short_name, concat(ifnull(b.batch_name,''),'-',ifnull(ba.remarks,'')) as batch_name,"
 			+ "de.dept_id As dept_id,de.dept_name_short As dept_name_short,de.dept_name As dept_name,"
-			+ "sch.school_name_short as school_name_short,(Select Group_concat(program_specialization.program_specialization_short_name) From program_specialization  where "
-			+ "program_specialization.program_specialization_id in (select batch_program_assignment.program_specialization_id From batch_program_assignment where "
-			+ "batch_program_assignment.ac_year_id=ba.ac_year_id and batch_program_assignment.batch_id=ba.batch_id and "
-			+ "batch_program_assignment.school_id =ba.school_id and "
-			+ "(batch_program_assignment.current_year=ba.current_year or batch_program_assignment.current_sem=ba.current_sem))) as program_specialization_short_name,"
+			+ "sch.school_name_short as school_name_short,GROUP_CONCAT(ps.program_specialization_short_name) as program_specialization_short_name,"
 			+ "ay.ac_year as ac_year "
 			+ "From batch_assignment ba "
 			+ "left join batch_program_assignment bs on bs.batch_assignment_id=ba.batch_assignment_id "

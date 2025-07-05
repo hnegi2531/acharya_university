@@ -91,35 +91,49 @@ public class BatchAssignmentService {
 	public List<BatchAssignment> saveBatchAssignment(BatchAssignmentDto s,String jwtToken) throws Exception {
 		JwtDetails jwtDetails = jwt_service.callJwtToken(jwtToken);
 		List<BatchAssignment> batchAssignList=new ArrayList<BatchAssignment>();
-			Integer count = s.getCurrent_sem() == null?s_repo.getCountOfBatchAssignmentOnYear(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_year(),s.getAc_year_id(),s.getBatch_id()):
-				            s_repo.getCountOfBatchAssignmentOnSem(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_sem(),s.getAc_year_id(),s.getBatch_id());
-			if(count >=1) {
-				throw new RuntimeException("Batch Assignment On Combination Of School, Program Specialization, Academic Year And Current Year OR Sem Already Exist");
-			} else {
-				if(s_repo.checkRemarksValidation(s.getRemarks()) >=1 ) {
-					throw new RuntimeException("Remarks Already Present! Please enter unique remarks field!");
-				} else {
-				BatchAssignment ba=new BatchAssignment();
-				ba.setBatch_id(s.getBatch_id());
-				ba.setSchool_id(s.getSchool_id());
-				ba.setAc_year_id(s.getAc_year_id());
-				ba.setCurrent_year(s.getCurrent_year());
-				ba.setCurrent_sem(s.getCurrent_sem());
-				ba.setStudent_ids(s.getStudent_ids());
-				ba.setBatch_type(s.getBatch_type());
-				ba.setBatch_master_id(s_repo.getMaxBatchMasterId(s.getAc_year_id())+1);
-				ba.setRemarks(s.getRemarks());
-				ba.setCreated_by(jwtDetails.getUserId());
-				ba.setCreated_username(jwtDetails.getUserName());
-				ba.setActive(s.getActive());
-				ba.setGuest_uesr_ids(s.getGuest_uesr_ids());
-				ba.setInterval_type_id(s.getInterval_type_id());
-
-				
-				s_repo.save(ba);
-				batchAssignList.add(ba);
+		String studentIds = s.getStudent_ids();
+			String[] idsArray = studentIds.split(",");
+			for(String id : idsArray) {
+				Integer studentId = Integer.parseInt(id);
+				if(s.getCurrent_sem() != null &&s_repo.getCountOfBatchAssignmentOnSem(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_sem(),s.getAc_year_id(), studentId) >= 1) {
+					throw new RuntimeException("Batch assignment contains duplicate student id !");
+				}
+				if(s.getCurrent_year() != null && s_repo.getCountOfBatchAssignmentOnYear(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_year(),s.getAc_year_id(), studentId) >= 1) {
+					throw new RuntimeException("Batch assignment contains duplicate student id !");
 				}
 			}
+
+			// Integer count = s.getCurrent_sem() == null ? s_repo.getCountOfBatchAssignmentOnYear(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_year(),s.getAc_year_id(),s.getBatch_id()):
+				            // s_repo.getCountOfBatchAssignmentOnSem(s.getSchool_id(),s.getProgram_specialization_id(),s.getCurrent_sem(),s.getAc_year_id(),s.getBatch_id());
+			// if(count >=1) {
+
+			// 	throw new RuntimeException("Batch Assignment On Combination Of School, Program Specialization, Academic Year And Current Year OR Sem Already Exist");
+			// } else {
+				//if(s_repo.checkRemarksValidation(s.getRemarks()) >=1 ) {
+				if(s_repo.checkRemarksValidationWithBatchId(s.getBatch_id(),s.getRemarks()) >=1 ) {
+					throw new RuntimeException("Batch name and Remarks are duplicate !");
+				} else {
+					BatchAssignment ba=new BatchAssignment();
+					ba.setBatch_id(s.getBatch_id());
+					ba.setSchool_id(s.getSchool_id());
+					ba.setAc_year_id(s.getAc_year_id());
+					ba.setCurrent_year(s.getCurrent_year());
+					ba.setCurrent_sem(s.getCurrent_sem());
+					ba.setStudent_ids(s.getStudent_ids());
+					ba.setBatch_type(s.getBatch_type());
+					ba.setBatch_master_id(s_repo.getMaxBatchMasterId(s.getAc_year_id())+1);
+					ba.setRemarks(s.getRemarks());
+					ba.setCreated_by(jwtDetails.getUserId());
+					ba.setCreated_username(jwtDetails.getUserName());
+					ba.setActive(s.getActive());
+					ba.setGuest_uesr_ids(s.getGuest_uesr_ids());
+					ba.setInterval_type_id(s.getInterval_type_id());
+
+					
+					s_repo.save(ba);
+					batchAssignList.add(ba);
+				}
+			// }
 		return batchAssignList;
 
 	}

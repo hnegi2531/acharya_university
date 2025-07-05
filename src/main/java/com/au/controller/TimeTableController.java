@@ -262,6 +262,26 @@ public class TimeTableController {
 			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
 		}
 	} 
+
+	@GetMapping("/fetchAllCourseDetailsForSectionTimeTable/{empIds}/{programSpecializationId}/{yearSem}")
+	public ResponseEntity<Object> getAllCourseDetailsForSectionTimeTable(@PathVariable List<Integer> empIds,@PathVariable Integer programSpecializationId,@PathVariable Integer yearSem) {
+		if (RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String, Object>> courseAmountDetailsByIds = courseAssignmentService.fetchAllCourseDetailsForSectionTimeTable(empIds,programSpecializationId,yearSem);
+			return ResponseHandler.generateResponse(true, HttpStatus.OK,courseAmountDetailsByIds);
+		} else {
+			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
+		}
+	}
+	
+	@GetMapping("/fetchAllCourseDetailsForBatchTimeTable/{emp_ids}/{batch_assignment_id}")
+	public ResponseEntity<Object> getAllCourseDetailsForBatchTimeTable(@PathVariable List<Integer> emp_ids,@PathVariable Integer batch_assignment_id) {
+		if (RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String, Object>> courseAmountDetailsByIds = courseAssignmentService.fetchAllCourseDetailsForBatchTimeTable(emp_ids,batch_assignment_id);
+			return ResponseHandler.generateResponse(true, HttpStatus.OK,courseAmountDetailsByIds);
+		} else {
+			return ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS,ResponseHandler.message1);
+		}
+	} 
 	
 	@GetMapping("/TimeIntervalTypesInSectionDropdownOfTimetable")
 	public ResponseEntity<Object> getTimeIntervalTypesInSectionDropdown() {
@@ -640,6 +660,30 @@ public class TimeTableController {
 			Date date1=df.parse(from_date);
 			Date date2=df.parse(to_date);
 			List<Map<String,Object>> list_time_table = timeTableService.getAllEmployeesForTimeTable(date1, date2, time_slots_id);
+			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
+			return list_time_table_response;
+		}else {
+			ResponseEntity<Object> rs=ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS, ResponseHandler.message1);
+			return rs;
+		}
+	}
+	
+	@GetMapping("/getEmployeesForSectionTimeTable/{program_specialization_id}/{year_sem}")
+	public ResponseEntity<Object> getEmployeesForSectionTimeTable(@PathVariable Integer program_specialization_id,@PathVariable Integer year_sem) {
+		if(RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForSectionTimeTable(program_specialization_id,year_sem);
+			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
+			return list_time_table_response;
+		}else {
+			ResponseEntity<Object> rs=ResponseHandler.generateResponse(true, HttpStatus.TOO_MANY_REQUESTS, ResponseHandler.message1);
+			return rs;
+		}
+	}
+
+	@GetMapping("/getEmployeesForBatchTimeTable/{batch_assignment_id}")
+	public ResponseEntity<Object> getEmployeesForBatchTimeTable(@PathVariable Integer batch_assignment_id) {
+		if(RateLimitController.bucket.tryConsume(1)) {
+			List<Map<String,Object>> list_time_table = timeTableService.getEmployeesForBatchTimeTable(batch_assignment_id);
 			ResponseEntity<Object> list_time_table_response = ResponseHandler.generateResponse(true, HttpStatus.OK, list_time_table);
 			return list_time_table_response;
 		}else {

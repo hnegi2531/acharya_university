@@ -193,6 +193,27 @@ public interface CourseAssignmentRepository extends JpaRepository<CourseAssignme
 			+ "left join user_details ua on ua.id=sa.user_id "
 			+ "left join employee_details ed on ed.email=ua.email where ed.emp_id IN ?1",nativeQuery = true)
 	public List<Map<String, Object>> fetchAllCourseDetailsForTimeTable(List<Integer> emp_ids);
+
+	@Query(value = "Select sa.subjet_assign_id as subjet_assign_id,ca.course_assignment_id as course_assignment_id,Concat(IfNull(c.course_name,''),'-',IfNull(ca.course_assignment_coursecode,''),'-',"
+			+ "IfNull(ca.year_sem,''),'-',IfNull(ps.program_specialization_short_name,'')) as course_name_with_code "
+			+ "from course_assignment ca "
+			+ "left join course c on c.course_id=ca.course_id "
+			+ "left join subject_assignment sa on sa.course_assignment_id=ca.course_assignment_id and sa.active = true "
+			+ "left join program_specialization ps on ps.program_specialization_id=ca.program_specialization_id and ps.program_specialization_id = ?2 "
+			+ "left join user_details ua on ua.id=sa.user_id "
+			+ "left join employee_details ed on ed.email=ua.email where ed.emp_id IN ?1 and ca.year_sem =?3 and ca.active =true ",nativeQuery = true)
+	public List<Map<String, Object>> fetchAllCourseDetailsForSectionTimeTable(List<Integer> emp_ids,Integer program_specialization_id,Integer year_sem);
+
+	@Query(value = "Select sa.subjet_assign_id as subjet_assign_id, ca.course_assignment_id as course_assignment_id, Concat(IfNull(c.course_name,''),'-',IfNull(ca.course_assignment_coursecode,''),'-', IfNull(ca.year_sem,''),'-', IfNull(ps.program_specialization_short_name,'')) as course_name_with_code "
+		+ "from batch_program_assignment bpa "
+		+ "inner join program_specialization ps on ps.program_specialization_id = bpa.program_specialization_id "
+		+ "inner join course_assignment ca on bpa.program_specialization_id  = ca.program_specialization_id "
+		+ "inner join course c on c.course_id = ca.course_id "
+		+ "inner join subject_assignment sa on sa.course_assignment_id  = ca.course_assignment_id "
+		+ "inner join user_details ud on ud.id = sa.user_id "
+		+ "inner join employee_details ed on ed.email = ud.email "
+		+ "where ed.emp_id IN ?1 AND bpa.batch_assignment_id = ?2 group by ed.emp_id", nativeQuery = true)
+	public List<Map<String, Object>> fetchAllCourseDetailsForBatchTimeTable(List<Integer> emp_ids, Integer batch_assignment_id);
 	
 	@Query(value ="Select new map(c.course_name as course_name,c.course_short_name as course_short_name,ca.course_assignment_coursecode as course_assignment_coursecode,"
 			+ "ca.year_sem as year_sem,cc.course_category_name as course_category_name,cc.type as type,"

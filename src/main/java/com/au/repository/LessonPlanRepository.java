@@ -94,9 +94,9 @@ public interface LessonPlanRepository extends JpaRepository<LessonPlan, Integer>
 			+ "Left join ProgramSpecilization ps on ps.program_specialization_id = lp.program_specialization_id "
 			+ "Left join Section sec on sec.section_id = lp.section_id "
 			+ "Left join UserAuthentication ua on ua.id = lp.user_id "
-			+ "Left join EmployeeDetails ed on ed.email = ua.email "
+			+ "Left join EmployeeDetails ed on ed.emp_id = lp.employee_id "
 			+ "Left join Department dept on ed.dept_id = dept.dept_id "
-			+ "Left join ReferenceBooks rb on rb.book_id = lp.book_id where lp.ac_year_id=?1 ")
+			+ "Left join ReferenceBooks rb on rb.book_id = lp.book_id where lp.ac_year_id=?1 GROUP BY lp.lesson_id order by lp.created_date desc")
 	public List<HashMap<String, Object>> fetchLessonPlanByAcYear(Integer ac_year_id);
 
 	@Query(value ="Select count(*) from lesson_plan lp where lp.ac_year_id=?1 and lp.program_assignment_id=?2 and lp.program_id=?3 "

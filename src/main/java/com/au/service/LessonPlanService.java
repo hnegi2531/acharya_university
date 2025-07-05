@@ -234,14 +234,7 @@ public class LessonPlanService {
 	
 	public List<HashMap<String, Object>> getLessonPlanByAcYear(Integer ac_year_id){
 		List<HashMap<String, Object>> lessonPlans=lessonPlanRepository.fetchLessonPlanByAcYear(ac_year_id);
-		return lessonPlans.stream()
-		        .collect(Collectors.toMap(
-		                map -> map.get("ac_year_id") + "_" + map.get("course_assignment_id") + "_" + map.get("emp_id"),
-		                map -> map,
-		                (existing, replacement) -> existing)) 
-		            .values()
-		            .stream()
-		            .collect(Collectors.toList());
+		return lessonPlans;
 	}
 	
 	public List<HashMap<String, Object>> getLessonPlanBasedOnAcYearIdAndUserId(Integer ac_year_id, Integer user_id) {
